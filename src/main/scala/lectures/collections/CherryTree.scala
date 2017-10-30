@@ -119,6 +119,27 @@ final case class CherryBranch[+T](left: Node[T], inner: CherryTree[Node2[T]], ri
 
   override def concat[S >: T](xs: CherryTree[S]) =
     this.foldRight(xs)((el: T, tree: CherryTree[S]) => tree.prepend(el))
+
+  override def apply(n: Int): T =
+    n match {
+      case z if z < 0 || z >= size => throw new IndexOutOfBoundsException("This index is not within possible bounds")
+      case z if left.size > z =>
+        left match {
+          case Node1(_) => _
+          case Node2(a, b) => if (z == 0) a else b
+        }
+      case z if z < size - right.size =>
+        val nodeIndex = (z - left.size) / 2
+        val tmpNode = inner.apply(nodeIndex)
+        if ((z - left.size) % 2 == 0) tmpNode.x
+        else tmpNode.y
+      case z =>
+        right match {
+          case Node1(_) => _
+          case Node2(a, b) => if (z == size - 1) b else a
+        }
+
+    }
 }
 
 
